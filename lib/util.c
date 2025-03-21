@@ -1,6 +1,6 @@
 /* Copyright (c) 2008 The Board of Trustees of The Leland Stanford
  * Junior University
- * 
+ *
  * We are making the OpenFlow specification and associated documentation
  * (Software) available for public use and benefit with the expectation
  * that others will use, modify and enhance the Software and contribute
@@ -13,10 +13,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -25,7 +25,7 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- * 
+ *
  * The name and trademarks of copyright holder(s) may NOT be used in
  * advertising or publicity pertaining to the Software or any
  * derivatives without specific, written prior permission.
@@ -41,37 +41,39 @@
 
 const char *program_name;
 
-void
-out_of_memory(void) 
+void out_of_memory(void)
 {
     ofp_fatal(0, "virtual memory exhausted");
 }
 
 void *
-xcalloc(size_t count, size_t size) 
+xcalloc(size_t count, size_t size)
 {
     void *p = count && size ? calloc(count, size) : malloc(1);
-    if (p == NULL) {
+    if (p == NULL)
+    {
         out_of_memory();
     }
     return p;
 }
 
 void *
-xmalloc(size_t size) 
+xmalloc(size_t size)
 {
     void *p = malloc(size ? size : 1);
-    if (p == NULL) {
+    if (p == NULL)
+    {
         out_of_memory();
     }
     return p;
 }
 
 void *
-xrealloc(void *p, size_t size) 
+xrealloc(void *p, size_t size)
 {
     p = realloc(p, size ? size : 1);
-    if (p == NULL) {
+    if (p == NULL)
+    {
         out_of_memory();
     }
     return p;
@@ -95,7 +97,7 @@ xmemdup0(const char *p_, size_t length)
 }
 
 char *
-xstrdup(const char *s) 
+xstrdup(const char *s)
 {
     return xmemdup0(s, strlen(s));
 }
@@ -138,10 +140,10 @@ xasprintf(const char *format, ...)
     return s;
 }
 
-void
-strlcpy(char *dst, const char *src, size_t size)
+void strlcpy_dca(char *dst, const char *src, size_t size)
 {
-    if (size > 0) {
+    if (size > 0)
+    {
         size_t n = strlen(src);
         size_t n_copy = MIN(n, size - 1);
         memcpy(dst, src, n_copy);
@@ -149,8 +151,7 @@ strlcpy(char *dst, const char *src, size_t size)
     }
 }
 
-void
-ofp_fatal(int err_no, const char *format, ...)
+void ofp_fatal(int err_no, const char *format, ...)
 {
     va_list args;
 
@@ -165,8 +166,7 @@ ofp_fatal(int err_no, const char *format, ...)
     exit(EXIT_FAILURE);
 }
 
-void
-ofp_error(int err_no, const char *format, ...)
+void ofp_error(int err_no, const char *format, ...)
 {
     int save_errno = errno;
     va_list args;
@@ -194,57 +194,56 @@ void set_program_name(const char *argv0)
  * line.  Numeric offsets are also included, starting at 'ofs' for the first
  * byte in 'buf'.  If 'ascii' is true then the corresponding ASCII characters
  * are also rendered alongside. */
-void
-ofp_hex_dump(FILE *stream, const void *buf_, size_t size,
-             uintptr_t ofs, bool ascii)
+void ofp_hex_dump(FILE *stream, const void *buf_, size_t size,
+                  uintptr_t ofs, bool ascii)
 {
-  const uint8_t *buf = buf_;
-  const size_t per_line = 16; /* Maximum bytes per line. */
+    const uint8_t *buf = buf_;
+    const size_t per_line = 16; /* Maximum bytes per line. */
 
-  while (size > 0)
+    while (size > 0)
     {
-      size_t start, end, n;
-      size_t i;
+        size_t start, end, n;
+        size_t i;
 
-      /* Number of bytes on this line. */
-      start = ofs % per_line;
-      end = per_line;
-      if (end - start > size)
-        end = start + size;
-      n = end - start;
+        /* Number of bytes on this line. */
+        start = ofs % per_line;
+        end = per_line;
+        if (end - start > size)
+            end = start + size;
+        n = end - start;
 
-      /* Print line. */
-      fprintf(stream, "%08jx  ", (uintmax_t) ROUND_DOWN(ofs, per_line));
-      for (i = 0; i < start; i++)
-        fprintf(stream, "   ");
-      for (; i < end; i++)
-        fprintf(stream, "%02hhx%c",
-                buf[i - start], i == per_line / 2 - 1? '-' : ' ');
-      if (ascii)
-        {
-          for (; i < per_line; i++)
+        /* Print line. */
+        fprintf(stream, "%08jx  ", (uintmax_t)ROUND_DOWN(ofs, per_line));
+        for (i = 0; i < start; i++)
             fprintf(stream, "   ");
-          fprintf(stream, "|");
-          for (i = 0; i < start; i++)
-            fprintf(stream, " ");
-          for (; i < end; i++) {
-              int c = buf[i - start];
-              putc(c >= 32 && c < 127 ? c : '.', stream);
-          }
-          for (; i < per_line; i++)
-            fprintf(stream, " ");
-          fprintf(stream, "|");
+        for (; i < end; i++)
+            fprintf(stream, "%02hhx%c",
+                    buf[i - start], i == per_line / 2 - 1 ? '-' : ' ');
+        if (ascii)
+        {
+            for (; i < per_line; i++)
+                fprintf(stream, "   ");
+            fprintf(stream, "|");
+            for (i = 0; i < start; i++)
+                fprintf(stream, " ");
+            for (; i < end; i++)
+            {
+                int c = buf[i - start];
+                putc(c >= 32 && c < 127 ? c : '.', stream);
+            }
+            for (; i < per_line; i++)
+                fprintf(stream, " ");
+            fprintf(stream, "|");
         }
-      fprintf(stream, "\n");
+        fprintf(stream, "\n");
 
-      ofs += n;
-      buf += n;
-      size -= n;
+        ofs += n;
+        buf += n;
+        size -= n;
     }
 }
 
-bool
-str_to_int(const char *s, int base, int *i)
+bool str_to_int(const char *s, int base, int *i)
 {
     long long ll;
     bool ok = str_to_llong(s, base, &ll);
@@ -252,8 +251,7 @@ str_to_int(const char *s, int base, int *i)
     return ok;
 }
 
-bool
-str_to_long(const char *s, int base, long *li)
+bool str_to_long(const char *s, int base, long *li)
 {
     long long ll;
     bool ok = str_to_llong(s, base, &ll);
@@ -261,37 +259,36 @@ str_to_long(const char *s, int base, long *li)
     return ok;
 }
 
-bool
-str_to_llong(const char *s, int base, long long *x)
+bool str_to_llong(const char *s, int base, long long *x)
 {
     int save_errno = errno;
     char *tail;
     errno = 0;
     *x = strtoll(s, &tail, base);
-    if (errno == EINVAL || errno == ERANGE || tail == s || *tail != '\0') {
+    if (errno == EINVAL || errno == ERANGE || tail == s || *tail != '\0')
+    {
         errno = save_errno;
         *x = 0;
         return false;
-    } else {
+    }
+    else
+    {
         errno = save_errno;
         return true;
     }
 }
 
-bool
-str_to_uint(const char *s, int base, unsigned int *u)
+bool str_to_uint(const char *s, int base, unsigned int *u)
 {
-    return str_to_int(s, base, (int *) u);
+    return str_to_int(s, base, (int *)u);
 }
 
-bool
-str_to_ulong(const char *s, int base, unsigned long *ul)
+bool str_to_ulong(const char *s, int base, unsigned long *ul)
 {
-    return str_to_long(s, base, (long *) ul);
+    return str_to_long(s, base, (long *)ul);
 }
 
-bool
-str_to_ullong(const char *s, int base, unsigned long long *ull)
+bool str_to_ullong(const char *s, int base, unsigned long long *ull)
 {
-    return str_to_llong(s, base, (long long *) ull);
+    return str_to_llong(s, base, (long long *)ull);
 }
